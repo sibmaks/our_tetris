@@ -69,5 +69,15 @@ namespace Tetris.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Byte[].
+        /// </summary>
+        internal static byte[] pause_font {
+            get {
+                object obj = ResourceManager.GetObject("pause_font", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }
