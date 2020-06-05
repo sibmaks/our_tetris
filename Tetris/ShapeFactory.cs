@@ -14,36 +14,36 @@ namespace Tetris
         };
 
         private static readonly int[,] tetr2 = new int[3, 3]{
-            {0,2,0  },
-            {0,2,2 },
-            {0,0,2 },
+            {0,1,0  },
+            {0,1,1 },
+            {0,0,1 },
         };
 
         private static readonly int[,] tetr3 = new int[3, 3]{
             {0,0,0  },
-            {3,3,3 },
-            {0,3,0 },
+            {1,1,1 },
+            {0,1,0 },
         };
 
         private static readonly int[,] tetr4 = new int[3, 3]{
-            { 4,0,0  },
-            {4,0,0 },
-            {4,4,0 },
+            {1,0,0  },
+            {1,0,0 },
+            {1,1,0 },
         };
         private static readonly int[,] tetr5 = new int[2, 2]{
-            { 5,5  },
-            {5,5 },
+            {1,1 },
+            {1,1 },
         };
         private static readonly int[,] tetr6 = new int[3, 3]{
-            { 0,0,6  },
-            {0,6,6 },
-            {0,6,0 },
+            {0,0,1  },
+            {0,1,1 },
+            {0,1,0 },
         };
 
         private static readonly int[,] tetr7 = new int[3, 3]{
-            { 0,7,7  },
-            {0,0,7 },
-            {0,0,7 },
+            {0,1,1 },
+            {0,1,0 },
+            {0,1,0 },
         };
 
         // Генерация фигур

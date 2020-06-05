@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Drawing;
+using System.Reflection;
 using System.Windows.Forms;
 
 namespace Tetris
 {
     public partial class GameForm : Form
     {
-        private static int MAP_WIDTH = 10;
+        private static int NEXT_FIG_WIDTH = 100;
+        private static int NEXT_FIG_HEIGHT = 100;
+
+        public static int MAP_WIDTH = 10;
         private static int MAP_HEIGHT = 20;
-        private static int CELL_SIZE = 50;
+        private static int CELL_SIZE = 25;
 
         private Shape currentShape;
         private Shape nextShape;
@@ -35,12 +39,15 @@ namespace Tetris
             currentShape = ShapeFactory.GenerateShape(3, 0);
             nextShape = ShapeFactory.GenerateShape(3, 0);
             SetInterval(400);
-            label1.Text = "Score: " + score;
-            label2.Text = "Lines: " + linesRemoved;
+            label1.Text = "" + score;
+            label2.Text = "" + linesRemoved;
 
             gameTimer.Interval = Interval;
             gameTimer.Tick += new EventHandler(Update);
             gameTimer.Start();
+
+            typeof(Panel).InvokeMember("DoubleBuffered", BindingFlags.SetProperty | BindingFlags.Instance | BindingFlags.NonPublic, null, gamePanel, new object[] { true });
+            typeof(Panel).InvokeMember("DoubleBuffered", BindingFlags.SetProperty | BindingFlags.Instance | BindingFlags.NonPublic, null, nextFigurePanel, new object[] { true });
 
             Invalidate();
         }
@@ -60,11 +67,14 @@ namespace Tetris
         private void TogglePause()
         {
             pause = !pause;
-            if(pause)
+            if (pause)
             {
+                pauseLabel.Visible = true;
                 gameTimer.Stop();
-            } else
+            }
+            else
             {
+                pauseLabel.Visible = false;
                 gameTimer.Start();
             }
         }
@@ -72,10 +82,11 @@ namespace Tetris
         // Управление
         private void HandleKeyUp(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == GameControls.KeysDown)
+            if (!pause && e.KeyCode == GameControls.KeysDown)
             {
                 gameTimer.Interval = Interval;
-            } else if(e.KeyCode == GameControls.KeysPause)
+            }
+            else if (e.KeyCode == GameControls.KeysPause)
             {
                 TogglePause();
             }
@@ -84,35 +95,38 @@ namespace Tetris
         // Управление
         private void HandleKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == GameControls.KeysDown)
+            if (!pause && e.KeyCode == GameControls.KeysDown)
             {
                 gameTimer.Interval = FastInterval;
-            } else if(e.KeyCode == GameControls.KeysRotate)
+            }
+            else if (!pause && e.KeyCode == GameControls.KeysRotate)
             {
                 if (!IsIntersects())
                 {
                     ResetArea();
                     currentShape.RotateShape();
                     Merge();
-                    Invalidate();
+                    gamePanel.Refresh();
                 }
-            } else if(e.KeyCode == GameControls.KeysRight)
+            }
+            else if (!pause && e.KeyCode == GameControls.KeysRight)
             {
                 if (!CollideHor(1))
                 {
                     ResetArea();
                     currentShape.MoveRight();
                     Merge();
-                    Invalidate();
+                    gamePanel.Refresh();
                 }
-            } else if(e.KeyCode == GameControls.KeysLeft)
+            }
+            else if (!pause && e.KeyCode == GameControls.KeysLeft)
             {
                 if (!CollideHor(-1))
                 {
                     ResetArea();
                     currentShape.MoveLeft();
                     Merge();
-                    Invalidate();
+                    gamePanel.Refresh();
                 }
             }
         }
@@ -120,13 +134,16 @@ namespace Tetris
         // Отрисовка следующей фигуры
         public void ShowNextShape(Graphics graphics)
         {
-            for (int i = 0; i < nextShape.Height; i++)
+            int offsetX = (NEXT_FIG_WIDTH - nextShape.RealWidth * CELL_SIZE) / 2;
+            int offsetY = (NEXT_FIG_HEIGHT - nextShape.RealHeight * CELL_SIZE) / 2;
+            
+            for (int i = nextShape.RealTopOffset, y = 0; i < nextShape.RealTopOffset + nextShape.RealHeight; i++, y++)
             {
-                for (int j = 0; j < nextShape.Width; j++)
+                for (int j = nextShape.RealLeftOffset, x = 0; j < nextShape.RealLeftOffset + nextShape.RealWidth; j++, x++)
                 {
                     if (nextShape.Figure[i, j] != 0)
                     {
-                        graphics.FillRectangle(nextShape.ShapeBrush, new Rectangle(800 + j * CELL_SIZE, CELL_SIZE + i * CELL_SIZE, CELL_SIZE, CELL_SIZE));
+                        graphics.FillRectangle(nextShape.ShapeBrush, new Rectangle(offsetX + x * CELL_SIZE, offsetY + y * CELL_SIZE, CELL_SIZE, CELL_SIZE));
                     }
                 }
             }
@@ -156,6 +173,8 @@ namespace Tetris
             }
             Merge();
             Invalidate();
+            nextFigurePanel.Refresh();
+            gamePanel.Refresh();
         }
 
         // Подсчет очков и линий при сборе блоков в линию
@@ -169,7 +188,9 @@ namespace Tetris
                 for (int j = 0; j < MAP_WIDTH; j++)
                 {
                     if (map[i, j] != null)
+                    {
                         count++;
+                    }
                 }
                 if (count == MAP_WIDTH)
                 {
@@ -192,23 +213,28 @@ namespace Tetris
             if (linesRemoved % 5 == 0)
             {
                 if (Interval > 60)
+                {
                     SetInterval(Interval - 10);
+                }
             }
 
-            label1.Text = "Score: " + score;
-            label2.Text = "Lines: " + linesRemoved;
+            label1.Text = "" + score;
+            label2.Text = "" + linesRemoved;
         }
 
         public bool IsIntersects()
         {
-            for (int i = currentShape.Y; i < currentShape.Y + currentShape.Height; i++)
+            int[,] rotatedMatrix = currentShape.GetRotateShape();
+            for (int i = currentShape.Y, y = 0; i < currentShape.Y + currentShape.Height; i++, y++)
             {
-                for (int j = currentShape.X; j < currentShape.X + currentShape.Width; j++)
+                for (int j = currentShape.X, x = 0; j < currentShape.X + currentShape.Width; j++, x++)
                 {
-                    if (j >= 0 && j < MAP_WIDTH)
+                    if (j >= 0 && j < MAP_WIDTH && i >= 0 && i < MAP_HEIGHT)
                     {
-                        if (map[i, j] != null && currentShape.Figure[i - currentShape.Y, j - currentShape.X] == 0)
+                        if (map[i, j] != null && map[i, j] != currentShape && rotatedMatrix[y, x] != 0)
+                        {
                             return true;
+                        }
                     }
                 }
             }
@@ -222,15 +248,20 @@ namespace Tetris
             {
                 for (int j = currentShape.X; j < currentShape.X + currentShape.Width; j++)
                 {
-                    if (currentShape.Figure[i - currentShape.Y, j - currentShape.X] != 0)
+                    if (i >= 0 && j >= 0 && i < MAP_HEIGHT && j < MAP_WIDTH)
+                    {
                         if (currentShape.Figure[i - currentShape.Y, j - currentShape.X] != 0)
                         {
-                            map[i, j] = currentShape;
+                            if (currentShape.Figure[i - currentShape.Y, j - currentShape.X] != 0)
+                            {
+                                map[i, j] = currentShape;
+                            }
+                            else
+                            {
+                                map[i, j] = null;
+                            }
                         }
-                        else
-                        {
-                            map[i, j] = null;
-                        }
+                    }
                 }
             }
         }
@@ -245,7 +276,9 @@ namespace Tetris
                     if (currentShape.Figure[i - currentShape.Y, j - currentShape.X] != 0)
                     {
                         if (i + 1 == MAP_HEIGHT)
+                        {
                             return true;
+                        }
                         if (map[i + 1, j] != null)
                         {
                             return true;
@@ -310,7 +343,7 @@ namespace Tetris
                 {
                     if (map[i, j] != null)
                     {
-                        graphics.FillRectangle(map[i, j].ShapeBrush, new Rectangle(CELL_SIZE + j * CELL_SIZE, CELL_SIZE + i * CELL_SIZE, CELL_SIZE, CELL_SIZE));
+                        graphics.FillRectangle(map[i, j].ShapeBrush, new Rectangle(j * CELL_SIZE, i * CELL_SIZE, CELL_SIZE, CELL_SIZE));
                     }
                 }
             }
@@ -321,19 +354,12 @@ namespace Tetris
         {
             for (int i = 0; i <= MAP_HEIGHT; i++)
             {
-                g.DrawLine(Pens.Black, new Point(CELL_SIZE, CELL_SIZE + i * CELL_SIZE), new Point(CELL_SIZE + MAP_WIDTH * CELL_SIZE, CELL_SIZE + i * CELL_SIZE));
+                g.DrawLine(Pens.Black, new Point(0, CELL_SIZE + i * CELL_SIZE), new Point(MAP_WIDTH * CELL_SIZE, CELL_SIZE + i * CELL_SIZE));
             }
             for (int i = 0; i <= MAP_WIDTH; i++)
             {
-                g.DrawLine(Pens.Black, new Point(CELL_SIZE + i * CELL_SIZE, CELL_SIZE), new Point(CELL_SIZE + i * CELL_SIZE, CELL_SIZE + MAP_HEIGHT * CELL_SIZE));
+                g.DrawLine(Pens.Black, new Point(i * CELL_SIZE, 0), new Point(i * CELL_SIZE, MAP_HEIGHT * CELL_SIZE));
             }
-        }
-
-        private void OnPaint(object sender, PaintEventArgs e)
-        {
-            DrawMap(e.Graphics);
-            DrawGrid(e.Graphics);
-            ShowNextShape(e.Graphics);
         }
 
         public void ClearMap()
@@ -345,6 +371,17 @@ namespace Tetris
                     map[i, j] = null;
                 }
             }
+        }
+
+        private void NextFigurePanel_Paint(object sender, PaintEventArgs e)
+        {
+            ShowNextShape(e.Graphics);
+        }
+
+        private void GamePanel_Paint(object sender, PaintEventArgs e)
+        {
+            DrawMap(e.Graphics);
+            DrawGrid(e.Graphics);
         }
     }
 }
