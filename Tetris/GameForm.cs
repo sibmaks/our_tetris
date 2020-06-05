@@ -29,8 +29,8 @@ namespace Tetris
 
         public GameForm()
         {
-            InitializeComponent();
             RegisterFont("19490.otf");
+            InitializeComponent();
 
             KeyUp += new KeyEventHandler(HandleKeyUp);
             KeyDown += new KeyEventHandler(HandleKeyDown);
