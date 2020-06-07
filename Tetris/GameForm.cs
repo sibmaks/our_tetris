@@ -424,5 +424,10 @@ namespace Tetris
             DrawMap(e.Graphics);
             DrawGrid(e.Graphics);
         }
+
+        private void Tetris_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            gameTimer.Stop();
+        }
     }
 }
