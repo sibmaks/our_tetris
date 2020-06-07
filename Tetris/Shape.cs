@@ -113,7 +113,7 @@ namespace Tetris
         public void RotateShape()
         {
             Figure = GetRotateShape();
-            int offset = GameForm.MAP_WIDTH - (X + Figure.GetLength(0));
+            int offset = Tetris.MAP_WIDTH - (X + Figure.GetLength(0));
             if (offset < 0)
             {
                 X += offset;

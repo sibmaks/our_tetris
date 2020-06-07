@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace Tetris
 {
-    public partial class GameForm : Form
+    public partial class Tetris : Form
     {
         private static int NEXT_FIG_WIDTH = 100;
         private static int NEXT_FIG_HEIGHT = 100;
@@ -27,10 +27,14 @@ namespace Tetris
         private int FastInterval;
         private bool pause;
 
-        public GameForm()
+        public Tetris()
         {
-            RegisterFont("19490.otf");
+            PrivateFontCollection fontCol = RegisterFont("19490.otf");
             InitializeComponent();
+            if (fontCol != null)
+            {
+                pauseLabel.Font = new Font(fontCol.Families[0], 31);
+            }
 
             KeyUp += new KeyEventHandler(HandleKeyUp);
             KeyDown += new KeyEventHandler(HandleKeyDown);
@@ -279,15 +283,18 @@ namespace Tetris
             {
                 for (int j = currentShape.X; j < currentShape.X + currentShape.Width; j++)
                 {
-                    if (currentShape.Figure[i - currentShape.Y, j - currentShape.X] != 0)
+                    if (i >= 0 && i < MAP_HEIGHT && j >= 0 && j < MAP_WIDTH)
                     {
-                        if (i + 1 == MAP_HEIGHT)
+                        if (currentShape.Figure[i - currentShape.Y, j - currentShape.X] != 0)
                         {
-                            return true;
-                        }
-                        if (map[i + 1, j] != null)
-                        {
-                            return true;
+                            if (i + 1 == MAP_HEIGHT)
+                            {
+                                return true;
+                            }
+                            if (map[i + 1, j] != null)
+                            {
+                                return true;
+                            }
                         }
                     }
                 }
@@ -349,27 +356,23 @@ namespace Tetris
         /// set to 'Copy Always'
         /// </summary>
         /// <param name="contentFontName">Your font to be passed as a resource (i.e. "myfont.tff")</param>
-        private static void RegisterFont(string contentFontName)
+        private static PrivateFontCollection RegisterFont(string contentFontName)
         {
-            // Creates the full path where your font will be installed
-            var fontDestination = Path.Combine(Environment.GetFolderPath(System.Environment.SpecialFolder.Fonts), contentFontName);
+            var fontDestination = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), contentFontName);
 
             if (!File.Exists(fontDestination))
             {
-                // Copies font to destination
                 File.Copy(Path.Combine(Directory.GetCurrentDirectory(), "Resources", contentFontName), fontDestination);
-
-                // Retrieves font name
-                // Makes sure you reference System.Drawing
+                
                 PrivateFontCollection fontCol = new PrivateFontCollection();
                 fontCol.AddFontFile(fontDestination);
                 var actualFontName = fontCol.Families[0].Name;
-
-                //Add font
+                
                 AddFontResource(fontDestination);
-                //Add registry entry   
                 Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts", actualFontName, contentFontName, RegistryValueKind.String);
+                return fontCol;
             }
+            return null;
         }
 
         // Отрисовка фигур

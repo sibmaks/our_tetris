@@ -1,6 +1,6 @@
 ﻿namespace Tetris
 {
-    partial class GameForm
+    partial class Tetris
     {
         /// <summary>
         /// Required designer variable.
@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(GameForm));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Tetris));
             this.gameTimer = new System.Windows.Forms.Timer(this.components);
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -97,7 +97,7 @@
             this.gamePanel.TabIndex = 4;
             this.gamePanel.Paint += new System.Windows.Forms.PaintEventHandler(this.GamePanel_Paint);
             // 
-            // GameForm
+            // Tetris
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -113,7 +113,7 @@
             this.MaximizeBox = false;
             this.MaximumSize = new System.Drawing.Size(400, 600);
             this.MinimumSize = new System.Drawing.Size(400, 600);
-            this.Name = "GameForm";
+            this.Name = "Tetris";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Тетрис";
             this.ResumeLayout(false);

@@ -71,12 +71,42 @@ namespace Tetris.Properties {
         }
         
         /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap keyboard_buttons_arrows {
+            get {
+                object obj = ResourceManager.GetObject("keyboard_buttons_arrows", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap maxresdefault {
+            get {
+                object obj = ResourceManager.GetObject("maxresdefault", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Поиск локализованного ресурса типа System.Byte[].
         /// </summary>
         internal static byte[] pause_font {
             get {
                 object obj = ResourceManager.GetObject("pause_font", resourceCulture);
                 return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap wasd_512 {
+            get {
+                object obj = ResourceManager.GetObject("wasd-512", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
     }
